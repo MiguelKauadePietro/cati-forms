@@ -1,0 +1,9 @@
+@forward 'vuetify/settings' with (
+    $reset: false,
+    $utilities: false,
+    $color-pack: false,
+    $body-font-family: (
+        'Instrument Sans',
+        sans-serif,
+    )
+);

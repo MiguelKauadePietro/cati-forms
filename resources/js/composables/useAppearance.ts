@@ -15,6 +15,8 @@ export function updateTheme(value: Appearance): void {
         return;
     }
 
+    systemDark.value = prefersDark();
+
     if (value === 'system') {
         const mediaQueryList = window.matchMedia(
             '(prefers-color-scheme: dark)',
@@ -53,7 +55,11 @@ const getStoredAppearance = () => {
         return null;
     }
 
-    return localStorage.getItem('appearance') as Appearance | null;
+    const stored = localStorage.getItem('appearance');
+
+    return stored === 'light' || stored === 'dark' || stored === 'system'
+        ? stored
+        : null;
 };
 
 const prefersDark = (): boolean => {
@@ -67,29 +73,34 @@ const prefersDark = (): boolean => {
 const handleSystemThemeChange = () => {
     const currentAppearance = getStoredAppearance();
 
-    updateTheme(currentAppearance || 'system');
+    updateTheme(currentAppearance || appearance.value);
 };
 
-export function initializeTheme(): void {
+export function initializeTheme(
+    initialAppearance: Appearance = 'system',
+): (() => void) | undefined {
     if (typeof window === 'undefined') {
         return;
     }
 
     // Initialize theme from saved preference or default to system...
     const savedAppearance = getStoredAppearance();
-    updateTheme(savedAppearance || 'system');
+    appearance.value = savedAppearance || initialAppearance;
+    updateTheme(appearance.value);
 
     // Set up system theme change listener...
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    const query = mediaQuery();
+    query?.addEventListener('change', handleSystemThemeChange);
+
+    return () => query?.removeEventListener('change', handleSystemThemeChange);
 }
 
 const appearance = ref<Appearance>('system');
+const systemDark = ref(false);
 
 export function useAppearance(): UseAppearanceReturn {
     onMounted(() => {
-        const savedAppearance = localStorage.getItem(
-            'appearance',
-        ) as Appearance | null;
+        const savedAppearance = getStoredAppearance();
 
         if (savedAppearance) {
             appearance.value = savedAppearance;
@@ -98,7 +109,7 @@ export function useAppearance(): UseAppearanceReturn {
 
     const resolvedAppearance = computed<ResolvedAppearance>(() => {
         if (appearance.value === 'system') {
-            return prefersDark() ? 'dark' : 'light';
+            return systemDark.value ? 'dark' : 'light';
         }
 
         return appearance.value;

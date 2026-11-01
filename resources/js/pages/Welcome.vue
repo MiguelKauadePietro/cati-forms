@@ -19,20 +19,20 @@ import { register } from '@/routes';
                 <Link
                     v-if="$page.props.auth.user"
                     :href="dashboard()"
-                    class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                    class="inline-block rounded-sm border border-primary bg-primary px-5 py-1.5 text-sm leading-normal text-white hover:border-secondary hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                     Dashboard
                 </Link>
                 <template v-else>
                     <Link
                         :href="login()"
-                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-white"
                     >
                         Log in
                     </Link>
                     <Link
                         :href="register()"
-                        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                        class="inline-block rounded-sm border border-primary bg-primary px-5 py-1.5 text-sm leading-normal text-white hover:border-secondary hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                         Register
                     </Link>
@@ -73,7 +73,7 @@ import { register } from '@/routes';
                                 <a
                                     href="https://laravel.com/docs"
                                     target="_blank"
-                                    class="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
+                                    class="ml-1 inline-flex items-center space-x-1 font-medium text-primary underline underline-offset-4 hover:text-secondary dark:text-white dark:hover:text-white"
                                 >
                                     <span>Documentation</span>
                                     <svg
@@ -112,7 +112,7 @@ import { register } from '@/routes';
                                 <a
                                     href="https://laracasts.com"
                                     target="_blank"
-                                    class="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
+                                    class="ml-1 inline-flex items-center space-x-1 font-medium text-primary underline underline-offset-4 hover:text-secondary dark:text-white dark:hover:text-white"
                                 >
                                     <span>Laracasts</span>
                                     <svg
@@ -138,7 +138,7 @@ import { register } from '@/routes';
                             <a
                                 href="https://cloud.laravel.com"
                                 target="_blank"
-                                class="inline-block rounded-sm border border-black bg-[#1b1b18] px-5 py-1.5 text-sm leading-normal text-white hover:border-black hover:bg-black dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
+                                class="inline-block rounded-sm border border-primary bg-primary px-5 py-1.5 text-sm leading-normal text-white hover:border-secondary hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             >
                                 Deploy now
                             </a>

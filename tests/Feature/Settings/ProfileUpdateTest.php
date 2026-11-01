@@ -18,8 +18,7 @@ test('profile information can be updated', function () {
     $response = $this
         ->actingAs($user)
         ->patch(route('profile.update'), [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'username' => 'New_User',
         ]);
 
     $response
@@ -28,26 +27,22 @@ test('profile information can be updated', function () {
 
     $user->refresh();
 
-    expect($user->name)->toBe('Test User');
-    expect($user->email)->toBe('test@example.com');
-    expect($user->email_verified_at)->toBeNull();
+    expect($user->username)->toBe('new_user');
+    expect($user->name)->toBe('new_user');
 });
 
-test('email verification status is unchanged when the email address is unchanged', function () {
+test('username can be kept unchanged', function () {
     $user = User::factory()->create();
+    $this->actingAs($user)->patch(route('profile.update'), ['username' => $user->username])
+        ->assertSessionHasNoErrors();
+});
 
-    $response = $this
-        ->actingAs($user)
-        ->patch(route('profile.update'), [
-            'name' => 'Test User',
-            'email' => $user->email,
-        ]);
-
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile.edit'));
-
-    expect($user->refresh()->email_verified_at)->not->toBeNull();
+test('profile username must remain unique after normalization', function () {
+    User::factory()->create(['username' => 'taken']);
+    $user = User::factory()->create();
+    $this->actingAs($user)->patch(route('profile.update'), ['username' => 'TAKEN'])
+        ->assertSessionHasErrors('username');
+    expect($user->refresh()->username)->not->toBe('taken');
 });
 
 test('user can delete their account', function () {

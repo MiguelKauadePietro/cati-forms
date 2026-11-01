@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    'default' => env('QUEUE_CONNECTION', 'sync'),
 
     /*
     |--------------------------------------------------------------------------
@@ -102,6 +102,7 @@ return [
     |
     */
 
+    // Batching is not used by the MVP. Enabling it requires a new migration.
     'batching' => [
         'database' => env('DB_CONNECTION', 'sqlite'),
         'table' => 'job_batches',
@@ -121,7 +122,7 @@ return [
     */
 
     'failed' => [
-        'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
+        'driver' => env('QUEUE_FAILED_DRIVER', 'null'),
         'database' => env('DB_CONNECTION', 'sqlite'),
         'table' => 'failed_jobs',
     ],

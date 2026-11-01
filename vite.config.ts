@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
+import vuetify from 'vite-plugin-vuetify';
 
 export default defineConfig({
     plugins: lazyPlugins(() => [
@@ -27,10 +28,17 @@ export default defineConfig({
                 },
             },
         }),
+        vuetify({
+            autoImport: true,
+            styles: { configFile: 'resources/css/vuetify-settings.scss' },
+        }),
         wayfinder({
             formVariants: true,
         }),
     ]),
+    ssr: {
+        noExternal: ['vuetify'],
+    },
     server: {
         watch: {
             ignored: [

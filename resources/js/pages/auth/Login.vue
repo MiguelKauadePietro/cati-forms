@@ -1,110 +1,100 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import InputError from '@/components/InputError.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
-import { request } from '@/routes/password';
-import PasskeyVerify from '@/components/PasskeyVerify.vue';
 
-defineOptions({
-    layout: {
-        title: 'Log in to your account',
-        description: 'Enter your email and password below to log in',
-    },
-});
+const form = useForm({ username: '', password: '', remember: false });
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-}>();
+function submit() {
+    if (form.processing) return;
+    form.post(store.url(), {
+        onFinish: () => form.reset('password'),
+    });
+}
 </script>
 
 <template>
-    <Head title="Log in" />
-
-    <div
-        v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
+    <Head title="Entrar" />
+    <v-card-title class="px-0"
+        ><h1 class="text-2xl font-semibold">Entrar</h1></v-card-title
     >
-        {{ status }}
-    </div>
-
-    <PasskeyVerify />
-
-    <Form
-        v-bind="store.form()"
-        :reset-on-success="['password']"
-        v-slot="{ errors, processing }"
-        class="flex flex-col gap-6"
+    <v-card-subtitle class="auth-description px-0"
+        >Acesse com seu nome de usuário e senha.</v-card-subtitle
     >
-        <div class="grid gap-6">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    name="email"
-                    required
-                    v-focus
-                    :tabindex="1"
-                    autocomplete="email"
-                    placeholder="email@example.com"
-                />
-                <InputError :message="errors.email" />
-            </div>
-
-            <div class="grid gap-2">
-                <div class="flex items-center justify-between">
-                    <Label for="password">Password</Label>
-                    <TextLink
-                        v-if="canResetPassword"
-                        :href="request()"
-                        class="text-sm"
-                        :tabindex="5"
-                    >
-                        Forgot your password?
-                    </TextLink>
-                </div>
-                <PasswordInput
-                    id="password"
-                    name="password"
-                    required
-                    :tabindex="2"
-                    autocomplete="current-password"
-                    placeholder="Password"
-                />
-                <InputError :message="errors.password" />
-            </div>
-
-            <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
-                    <Checkbox id="remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
-                </Label>
-            </div>
-
-            <Button
-                type="submit"
-                class="mt-4 w-full"
-                :tabindex="4"
-                :disabled="processing"
-                data-test="login-button"
-            >
-                <Spinner v-if="processing" />
-                Log in
-            </Button>
+    <v-form class="mt-6" @submit.prevent="submit">
+        <v-text-field
+            id="username"
+            v-model="form.username"
+            name="username"
+            label="Nome de usuário"
+            type="text"
+            autocomplete="username"
+            variant="outlined"
+            required
+            :disabled="form.processing"
+            :error-messages="form.errors.username"
+            autofocus
+            maxlength="255"
+        />
+        <v-text-field
+            id="password"
+            v-model="form.password"
+            name="password"
+            label="Senha"
+            type="password"
+            autocomplete="current-password"
+            variant="outlined"
+            required
+            :disabled="form.processing"
+            :error-messages="form.errors.password"
+        />
+        <v-checkbox
+            v-model="form.remember"
+            label="Manter conectado"
+            :disabled="form.processing"
+            hide-details
+            class="mb-4"
+        />
+        <div aria-live="polite" class="sr-only">
+            {{
+                form.processing
+                    ? 'Enviando…'
+                    : Object.values(form.errors).join('. ')
+            }}
         </div>
-
-        <div class="text-center text-sm text-muted-foreground">
-            Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
-        </div>
-    </Form>
+        <v-btn
+            type="submit"
+            color="primary"
+            block
+            size="large"
+            :loading="form.processing"
+            :disabled="form.processing"
+            data-test="login-button"
+            >Entrar</v-btn
+        >
+    </v-form>
+    <p class="mt-6 text-center">
+        Ainda não possui conta?
+        <Link :href="register()" class="auth-link">Criar conta</Link>
+    </p>
 </template>
+
+<style scoped>
+.auth-description {
+    white-space: normal;
+    opacity: 1;
+}
+.auth-link {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.auth-link:hover {
+    color: var(--link-hover);
+    text-decoration-thickness: 2px;
+}
+.auth-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+}
+</style>
