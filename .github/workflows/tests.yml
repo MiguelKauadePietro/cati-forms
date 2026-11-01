@@ -17,10 +17,8 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_ROOT_PASSWORD: ci_test_password
           MYSQL_DATABASE: cati_forms
-          MYSQL_USER: miguel
-          MYSQL_PASSWORD: "*Sk8203040"
         ports:
           - 3306:3306
         options: >-
@@ -34,8 +32,8 @@ jobs:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_DATABASE: cati_forms
-      DB_USERNAME: miguel
-      DB_PASSWORD: "*Sk8203040"
+      DB_USERNAME: root
+      DB_PASSWORD: ci_test_password
 
     steps:
       - name: Checkout code
