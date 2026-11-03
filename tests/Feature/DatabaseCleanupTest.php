@@ -14,9 +14,10 @@ function withLegacySchema(Closure $test): void
     DB::setDefaultConnection('legacy_test');
     try {
         foreach (glob(database_path('migrations/*.php')) as $file) {
-            if (! str_contains($file, 'remove_unused_starter_kit')) {
-                (require $file)->up();
+            if (basename($file) >= '2026_11_01_000000_remove_unused_starter_kit_structures.php') {
+                break;
             }
+            (require $file)->up();
         }
         $test(require database_path('migrations/2026_11_01_000000_remove_unused_starter_kit_structures.php'));
     } finally {

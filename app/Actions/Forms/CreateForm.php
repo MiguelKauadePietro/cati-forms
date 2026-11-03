@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Actions\Forms;
+
+use App\Models\Form;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
+class CreateForm
+{
+    /** @param list<array{type: string, prompt: string}> $questions */
+    public function handle(User $user, string $title, string $description, array $questions = []): Form
+    {
+        return DB::transaction(function () use ($user, $title, $description, $questions): Form {
+            $form = $user->forms()->create([
+                'title' => $title,
+                'description' => $description,
+            ]);
+
+            foreach ($questions as $index => $question) {
+                $form->questions()->create([
+                    'type' => $question['type'],
+                    'prompt' => $question['prompt'],
+                    'position' => $index + 1,
+                ]);
+            }
+
+            return $form->load('questions');
+        });
+    }
+}
