@@ -17,6 +17,7 @@ class QuestionResource extends JsonResource
             'type' => $this->type,
             'prompt' => $this->prompt,
             'position' => $this->position,
+            'options' => QuestionOptionResource::collection($this->whenLoaded('options')),
         ];
     }
 }

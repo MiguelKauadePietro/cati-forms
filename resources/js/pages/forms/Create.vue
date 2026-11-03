@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
 import { createForm, FormApiError } from '@/api/forms';
+import QuestionEditor from '@/components/forms/QuestionEditor.vue';
+import type { QuestionDraft } from '@/types/forms';
 import type { FormErrors } from '@/api/forms';
 import { dashboard, login } from '@/routes';
 import { create } from '@/routes/forms';
@@ -16,14 +18,19 @@ defineOptions({
 });
 
 const form = reactive({ title: '', description: '' });
-const questions = ref<{ key: number; prompt: string }[]>([]);
+const questions = ref<QuestionDraft[]>([]);
 let nextQuestionKey = 0;
 
 function addQuestion() {
     if (processing.value) return;
     errors.value = {};
     success.value = false;
-    questions.value.push({ key: nextQuestionKey++, prompt: '' });
+    questions.value.push({
+        key: nextQuestionKey++,
+        type: 'discursive',
+        prompt: '',
+        options: [],
+    });
 }
 
 function removeQuestion(index: number) {
@@ -50,9 +57,12 @@ async function submit() {
     try {
         await createForm({
             ...form,
-            questions: questions.value.map(({ prompt }) => ({
-                type: 'discursive',
+            questions: questions.value.map(({ type, prompt, options }) => ({
+                type,
                 prompt,
+                ...(type === 'discursive'
+                    ? {}
+                    : { options: options.map(({ label }) => ({ label })) }),
             })),
         });
         form.title = '';
@@ -160,8 +170,8 @@ async function submit() {
                             Perguntas
                         </h2>
                         <p class="mb-6">
-                            Adicione perguntas discursivas. Todas serão
-                            obrigatórias para quem responder.
+                            Defina as perguntas. Todas serão obrigatórias para
+                            quem responder.
                         </p>
                         <v-alert
                             v-if="errors.questions"
@@ -172,52 +182,24 @@ async function submit() {
                         >
                             {{ errors.questions.join(' ') }}
                         </v-alert>
-                        <div
+                        <QuestionEditor
                             v-for="(question, index) in questions"
                             :key="question.key"
-                            class="mb-6"
-                        >
-                            <div
-                                class="mb-2 flex flex-wrap items-center justify-between gap-2"
-                            >
-                                <h3 class="font-semibold">
-                                    Pergunta {{ index + 1 }} · Discursiva
-                                </h3>
-                                <v-btn
-                                    type="button"
-                                    variant="text"
-                                    :disabled="processing"
-                                    :aria-label="`Remover pergunta ${index + 1}`"
-                                    @click="removeQuestion(index)"
-                                    >Remover</v-btn
-                                >
-                            </div>
-                            <v-textarea
-                                :id="`question-${question.key}`"
-                                v-model="question.prompt"
-                                label="Enunciado"
-                                hint="Obrigatório. Até 10.000 caracteres."
-                                persistent-hint
-                                variant="outlined"
-                                required
-                                maxlength="10000"
-                                rows="3"
-                                auto-grow
-                                :disabled="processing"
-                                :error-messages="
-                                    errors[`questions.${index}.prompt`] ??
-                                    errors[`questions.${index}.type`] ??
-                                    errors[`questions.${index}`]
-                                "
-                            />
-                        </div>
+                            :model-value="question"
+                            :index="index"
+                            :errors="errors"
+                            :processing="processing"
+                            @update:model-value="questions[index] = $event"
+                            @clear-errors="errors = {}"
+                            @remove="removeQuestion(index)"
+                        />
                         <v-btn
                             type="button"
                             color="primary"
                             variant="outlined"
                             :disabled="processing"
                             @click="addQuestion"
-                            >Adicionar pergunta discursiva</v-btn
+                            >Adicionar pergunta</v-btn
                         >
                     </section>
                     <p class="text-body-2 text-medium-emphasis mb-6">

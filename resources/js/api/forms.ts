@@ -1,9 +1,20 @@
-import { store } from '@/routes/api/v1/forms';
+import { mine, store } from '@/routes/api/v1/forms';
+
+export type QuestionType =
+    | 'discursive'
+    | 'multiple_choice'
+    | 'single_choice_with_justification';
+
+export type QuestionInput = {
+    type: QuestionType;
+    prompt: string;
+    options?: { label: string }[];
+};
 
 export type CreateFormInput = {
     title: string;
     description: string;
-    questions?: { type: 'discursive'; prompt: string }[];
+    questions?: QuestionInput[];
 };
 
 export type FormRecord = Omit<CreateFormInput, 'questions'> & {
@@ -13,20 +24,15 @@ export type FormRecord = Omit<CreateFormInput, 'questions'> & {
     updated_at: string;
     questions: {
         id: number;
-        type: 'discursive';
+        type: QuestionType;
         prompt: string;
         position: number;
+        options: { id: number; label: string; position: number }[];
     }[];
 };
 
 export type FormErrors = Partial<
-    Record<
-        | keyof CreateFormInput
-        | `questions.${number}`
-        | `questions.${number}.prompt`
-        | `questions.${number}.type`,
-        string[]
-    >
+    Record<keyof CreateFormInput | `questions.${number}${string}`, string[]>
 >;
 
 export class FormApiError extends Error {
@@ -68,4 +74,39 @@ export async function createForm(input: CreateFormInput): Promise<FormRecord> {
 
     const body = (await response.json()) as { data: FormRecord };
     return body.data;
+}
+
+export type FormSummary = Omit<FormRecord, 'questions'>;
+
+export type MyFormsPage = {
+    data: FormSummary[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+};
+
+export async function listMyForms(page = 1): Promise<MyFormsPage> {
+    const response = await fetch(mine.url({ query: { page } }), {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            response.status === 401
+                ? 'Sua sessão expirou. Entre novamente para consultar seus formulários.'
+                : 'Não foi possível carregar seus formulários. Tente novamente.',
+        );
+    }
+
+    return (await response.json()) as MyFormsPage;
 }

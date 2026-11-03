@@ -57,7 +57,7 @@ test('invalid questions reject the whole submission', function (mixed $questions
     'invalid item' => [[null], 'questions.0'],
     'missing type' => [[['prompt' => 'Texto']], 'questions.0.type'],
     'invalid type' => [[['type' => ['discursive'], 'prompt' => 'Texto']], 'questions.0.type'],
-    'future type' => [[['type' => 'multiple_choice', 'prompt' => 'Texto']], 'questions.0.type'],
+    'future type' => [[['type' => 'unknown', 'prompt' => 'Texto']], 'questions.0.type'],
     'missing prompt' => [[['type' => 'discursive']], 'questions.0.prompt'],
     'blank prompt' => [[['type' => 'discursive', 'prompt' => '   ']], 'questions.0.prompt'],
     'invalid prompt' => [[['type' => 'discursive', 'prompt' => ['Texto']]], 'questions.0.prompt'],
