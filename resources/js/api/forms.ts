@@ -15,11 +15,18 @@ export type CreateFormInput = {
     title: string;
     description: string;
     questions?: QuestionInput[];
+    request_contact_email?: boolean;
 };
 
-export type FormRecord = Omit<CreateFormInput, 'questions'> & {
+export type FormRecord = Omit<
+    CreateFormInput,
+    'questions' | 'request_contact_email'
+> & {
     id: number;
     creator_id: number | null;
+    public_id: string;
+    public_url: string;
+    request_contact_email: boolean;
     created_at: string;
     updated_at: string;
     questions: {
@@ -44,22 +51,24 @@ export class FormApiError extends Error {
     }
 }
 
-export async function createForm(input: CreateFormInput): Promise<FormRecord> {
+export function getXsrfToken(): string {
     // Read on submission, never during SSR or once at startup: login renews tokens.
     const xsrfCookie = document.cookie
         .split('; ')
         .find((cookie) => cookie.startsWith('XSRF-TOKEN='));
-    const token = xsrfCookie
+    return xsrfCookie
         ? decodeURIComponent(xsrfCookie.slice('XSRF-TOKEN='.length))
         : '';
+}
 
+export async function createForm(input: CreateFormInput): Promise<FormRecord> {
     const response = await fetch(store.url(), {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': token,
+            'X-XSRF-TOKEN': getXsrfToken(),
         },
         body: JSON.stringify(input),
     });

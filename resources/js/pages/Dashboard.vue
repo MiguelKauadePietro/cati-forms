@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import ShareFormLink from '@/components/forms/ShareFormLink.vue';
 import { listMyForms } from '@/api/forms';
 import type { MyFormsPage } from '@/api/forms';
 import { dashboard } from '@/routes';
@@ -126,6 +127,10 @@ onMounted(loadForms);
                                         )
                                     }}</time>
                                 </p>
+                                <ShareFormLink
+                                    :url="form.public_url"
+                                    class="share-action"
+                                />
                             </v-card>
                         </v-col>
                     </v-row>
@@ -196,6 +201,9 @@ onMounted(loadForms);
     font-size: 0.875rem;
     line-height: 1.6;
     white-space: pre-wrap;
+}
+.share-action {
+    margin-top: 16px;
 }
 .created-date {
     margin-top: 20px;

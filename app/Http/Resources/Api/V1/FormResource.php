@@ -14,8 +14,11 @@ class FormResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'public_id' => $this->public_id,
+            'public_url' => route('forms.public', ['form' => $this->public_id]),
             'title' => $this->title,
             'description' => $this->description,
+            'request_contact_email' => $this->request_contact_email,
             'creator_id' => $this->creator_id,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

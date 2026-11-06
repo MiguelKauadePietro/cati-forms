@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import { reactive, ref } from 'vue';
 import { createForm, FormApiError } from '@/api/forms';
+import ShareFormLink from '@/components/forms/ShareFormLink.vue';
 import QuestionEditor from '@/components/forms/QuestionEditor.vue';
 import type { QuestionDraft } from '@/types/forms';
 import type { FormErrors } from '@/api/forms';
@@ -17,7 +18,11 @@ defineOptions({
     },
 });
 
-const form = reactive({ title: '', description: '' });
+const form = reactive({
+    title: '',
+    description: '',
+    request_contact_email: false,
+});
 const questions = ref<QuestionDraft[]>([]);
 let nextQuestionKey = 0;
 
@@ -42,6 +47,7 @@ function removeQuestion(index: number) {
 const errors = ref<FormErrors>({});
 const processing = ref(false);
 const success = ref(false);
+const createdFormUrl = ref('');
 const message = ref('');
 const needsLogin = ref(false);
 
@@ -55,7 +61,7 @@ async function submit() {
     needsLogin.value = false;
 
     try {
-        await createForm({
+        const created = await createForm({
             ...form,
             questions: questions.value.map(({ type, prompt, options }) => ({
                 type,
@@ -65,8 +71,10 @@ async function submit() {
                     : { options: options.map(({ label }) => ({ label })) }),
             })),
         });
+        createdFormUrl.value = created.public_url;
         form.title = '';
         form.description = '';
+        form.request_contact_email = false;
         questions.value = [];
         success.value = true;
     } catch (error) {
@@ -112,6 +120,7 @@ async function submit() {
                     class="mb-6"
                 >
                     Formulário criado com sucesso.
+                    <ShareFormLink :url="createdFormUrl" />
                 </v-alert>
                 <v-alert
                     v-if="message"
@@ -162,6 +171,16 @@ async function submit() {
                         :error-messages="errors.description"
                         class="mb-6"
                     />
+                    <v-switch
+                        id="request-contact-email"
+                        v-model="form.request_contact_email"
+                        name="request_contact_email"
+                        label="Solicitar e-mail de contato do respondente"
+                        color="primary"
+                        :disabled="processing"
+                        :error-messages="errors.request_contact_email"
+                        class="mb-6"
+                    />
                     <section aria-labelledby="questions-heading" class="mb-8">
                         <h2
                             id="questions-heading"
@@ -203,9 +222,9 @@ async function submit() {
                         >
                     </section>
                     <p class="text-body-2 text-medium-emphasis mb-6">
-                        Confira as informações antes de criar. O título e a
-                        descrição e as perguntas não poderão ser editados
-                        depois.
+                        Confira as informações antes de criar. O formulário,
+                        incluindo a configuração de solicitação de e-mail, não
+                        poderá ser editado depois.
                     </p>
                     <v-btn
                         type="submit"

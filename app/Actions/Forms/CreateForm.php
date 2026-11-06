@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\DB;
 class CreateForm
 {
     /** @param list<array{type: string, prompt: string, options?: list<array{label: string}>}> $questions */
-    public function handle(User $user, string $title, string $description, array $questions = []): Form
+    public function handle(User $user, string $title, string $description, array $questions = [], bool $requestContactEmail = false): Form
     {
-        return DB::transaction(function () use ($user, $title, $description, $questions): Form {
+        return DB::transaction(function () use ($user, $title, $description, $questions, $requestContactEmail): Form {
             $form = $user->forms()->create([
                 'title' => $title,
                 'description' => $description,
+                'request_contact_email' => $requestContactEmail,
             ]);
 
             foreach ($questions as $index => $question) {

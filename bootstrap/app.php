@@ -8,6 +8,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -35,4 +37,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request): Response {
+            $status = $response->getStatusCode();
+
+            if ($request->is('api/*') || $request->expectsJson()
+                || ! in_array($status, [403, 404, 500], true)
+                || ($status === 500 && config('app.debug'))) {
+                return $response;
+            }
+
+            // An unmatched route may never enter the web middleware or share its props.
+            $appearance = $request->attributes->get('appearance', $request->cookie('appearance'));
+
+            return Inertia::render('Error', [
+                'status' => $status,
+                'appearance' => in_array($appearance, ['light', 'dark', 'system'], true) ? $appearance : 'system',
+            ])->toResponse($request)->setStatusCode($status);
+        });
     })->create();

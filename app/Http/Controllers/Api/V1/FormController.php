@@ -31,6 +31,7 @@ class FormController extends Controller
             $request->validated('title'),
             $request->validated('description'),
             $request->validated('questions', []),
+            (bool) $request->validated('request_contact_email', false),
         );
 
         return (new FormResource($form))->response()->setStatusCode(201);

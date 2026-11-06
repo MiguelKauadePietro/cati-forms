@@ -20,8 +20,11 @@ test('authenticated users create a form with a versioned JSON response', functio
     $form = Form::sole();
     $response->assertExactJson(['data' => [
         'id' => $form->id,
+        'public_id' => $form->public_id,
+        'public_url' => route('forms.public', ['form' => $form->public_id]),
         'title' => $form->title,
         'description' => $form->description,
+        'request_contact_email' => false,
         'creator_id' => $user->id,
         'created_at' => $form->created_at->toISOString(),
         'updated_at' => $form->updated_at->toISOString(),

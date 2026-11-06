@@ -13,7 +13,9 @@ void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
-            case name === 'Welcome':
+            case name === 'Welcome' ||
+                name === 'Error' ||
+                name === 'forms/Public':
                 return null;
             case name === 'auth/Login' || name === 'auth/Register':
                 return AuthVuetifyLayout;

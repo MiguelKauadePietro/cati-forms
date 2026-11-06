@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
@@ -30,12 +31,37 @@ export default defineConfig({
         }),
         vuetify({
             autoImport: true,
-            styles: { configFile: 'resources/css/vuetify-settings.scss' },
+            styles: 'sass',
         }),
         wayfinder({
             formVariants: true,
         }),
     ]),
+    css: {
+        preprocessorOptions: {
+            sass: {
+                additionalData: (source: string, filename: string) => {
+                    if (
+                        !filename
+                            .replaceAll('\\', '/')
+                            .includes('/node_modules/vuetify/')
+                    ) {
+                        return source;
+                    }
+
+                    const settings = fileURLToPath(
+                        new URL(
+                            './resources/css/vuetify-settings.scss',
+                            import.meta.url,
+                        ),
+                    ).replaceAll('\\', '/');
+
+                    // Real Sass paths keep Inertia's development SSR stylesheet URLs valid.
+                    return `@use "${settings}"\n${source}`;
+                },
+            },
+        },
+    },
     ssr: {
         noExternal: ['vuetify'],
     },

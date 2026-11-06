@@ -17,6 +17,7 @@ class StoreFormRequest extends FormRequest
         $rules = [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:10000'],
+            'request_contact_email' => ['sometimes', 'boolean'],
             'questions' => ['sometimes', 'array', 'list'],
             'questions.*' => ['required', 'array:type,prompt,options'],
             'questions.*.type' => ['required', 'string', 'in:discursive,multiple_choice,single_choice_with_justification'],
@@ -47,6 +48,7 @@ class StoreFormRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'request_contact_email.boolean' => 'Informe se o formulário deve solicitar e-mail de contato.',
             'questions.*.options.required' => 'Adicione pelo menos uma alternativa.',
             'questions.*.options.min' => 'Adicione pelo menos uma alternativa.',
             'questions.*.options.array' => 'As alternativas devem ser uma lista.',
