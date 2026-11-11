@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help dev backend frontend test test-auth lint build migrate migrate-status check
+.PHONY: help dev backend frontend test test-auth lint build migrate migrate-status clear-cache check
 
 help: ## Exibir comandos disponíveis
 	@printf 'Uso: make <comando>\n\n'
@@ -33,6 +33,9 @@ migrate: ## Aplicar migrations pendentes ao banco configurado
 
 migrate-status: ## Consultar o estado das migrations
 	php artisan migrate:status
+
+clear-cache: ## Limpar todos os caches do Laravel
+	php artisan optimize:clear
 
 check: ## Executar verificações de CI e build, parando na primeira falha
 	composer ci:check

@@ -5,7 +5,7 @@ import ShareFormLink from '@/components/forms/ShareFormLink.vue';
 import { listMyForms } from '@/api/forms';
 import type { MyFormsPage } from '@/api/forms';
 import { dashboard } from '@/routes';
-import { create } from '@/routes/forms';
+import { create, show } from '@/routes/forms';
 
 defineOptions({
     layout: {
@@ -127,6 +127,14 @@ onMounted(loadForms);
                                         )
                                     }}</time>
                                 </p>
+                                <v-btn
+                                    :tag="Link"
+                                    :href="show(form.id).url"
+                                    variant="text"
+                                    class="share-action"
+                                >
+                                    Detalhes e respostas
+                                </v-btn>
                                 <ShareFormLink
                                     :url="form.public_url"
                                     class="share-action"

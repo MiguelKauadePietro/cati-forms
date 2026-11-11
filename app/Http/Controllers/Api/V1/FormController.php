@@ -6,12 +6,26 @@ use App\Actions\Forms\CreateForm;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Forms\StoreFormRequest;
 use App\Http\Resources\Api\V1\FormResource;
+use App\Models\Form;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FormController extends Controller
 {
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $request->validate(['page' => ['sometimes', 'integer', 'min:1']]);
+
+        return FormResource::collection(Form::query()
+            ->orderByDesc('created_at')->orderByDesc('id')->paginate(12));
+    }
+
+    public function show(Form $form): FormResource
+    {
+        return new FormResource($form->load('questions.options'));
+    }
+
     public function mine(Request $request): AnonymousResourceCollection
     {
         $request->validate(['page' => ['sometimes', 'integer', 'min:1']]);

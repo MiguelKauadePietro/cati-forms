@@ -1,4 +1,6 @@
-import { mine, store } from '@/routes/api/v1/forms';
+import { index, mine, show, store } from '@/routes/api/v1/forms';
+import { index as submissionsIndex } from '@/routes/api/v1/forms/submissions';
+import { csv, pdf } from '@/routes/api/v1/forms/exports';
 
 export type QuestionType =
     | 'discursive'
@@ -118,4 +120,94 @@ export async function listMyForms(page = 1): Promise<MyFormsPage> {
     }
 
     return (await response.json()) as MyFormsPage;
+}
+
+export type AnswerRecord = {
+    id: number;
+    question_id: number;
+    text: string | null;
+    justification: string | null;
+    options: { id: number; label: string; position: number }[];
+};
+
+export type SubmissionRecord = {
+    id: number;
+    form_id: number;
+    contact_email: string | null;
+    created_at: string;
+    answers: AnswerRecord[];
+};
+
+export type SubmissionsPage = Omit<MyFormsPage, 'data'> & {
+    data: SubmissionRecord[];
+};
+
+async function readForms<T>(url: string): Promise<T> {
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+        throw new Error(
+            response.status === 401
+                ? 'Sua sessão expirou. Entre novamente para consultar os formulários.'
+                : response.status === 404
+                  ? 'O formulário não foi encontrado.'
+                  : 'Não foi possível carregar os dados. Tente novamente.',
+        );
+    }
+    return (await response.json()) as T;
+}
+
+export function listForms(page = 1): Promise<MyFormsPage> {
+    return readForms(index.url({ query: { page } }));
+}
+
+export async function getForm(form: number): Promise<FormRecord> {
+    const body = await readForms<{ data: FormRecord }>(show.url(form));
+    return body.data;
+}
+
+export function listSubmissions(
+    form: number,
+    page = 1,
+): Promise<SubmissionsPage> {
+    return readForms(submissionsIndex.url(form, { query: { page } }));
+}
+
+export type ExportFormat = 'csv' | 'pdf';
+
+export async function downloadResponses(
+    form: number,
+    format: ExportFormat,
+): Promise<void> {
+    const response = await fetch((format === 'csv' ? csv : pdf).url(form), {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+        throw new Error(
+            response.status === 401
+                ? 'Sua sessão expirou. Entre novamente para exportar as respostas.'
+                : response.status === 404
+                  ? 'O formulário não foi encontrado.'
+                  : 'Não foi possível exportar as respostas. Tente novamente.',
+        );
+    }
+    const expectedType = format === 'csv' ? 'text/csv' : 'application/pdf';
+    if (!response.headers.get('Content-Type')?.startsWith(expectedType)) {
+        throw new Error('O arquivo recebido é inválido. Tente novamente.');
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `formulario-${form}-respostas.${format}`;
+    document.body.appendChild(link);
+    try {
+        link.click();
+    } finally {
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
 }

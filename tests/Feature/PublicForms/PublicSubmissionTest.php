@@ -308,3 +308,20 @@ test('a float question id cannot bypass validation of a required answer', functi
         ->assertUnprocessable()->assertJsonValidationErrors('answers.0.question_id');
     $this->assertDatabaseCount('submissions', 0);
 });
+
+test('whitespace justification and options from another form are rejected without writes', function (string $case) {
+    $form = publicResponseForm();
+    $other = publicResponseForm();
+    $payload = publicSubmissionPayload($form);
+    if ($case === 'whitespace') {
+        $payload['answers'][2]['justification'] = " \t\n ";
+        $error = 'answers.2.justification';
+    } else {
+        $payload['answers'][2]['option_ids'] = [$other->questions[2]->options[0]->id];
+        $error = 'answers.2.option_ids.0';
+    }
+    $this->postJson(publicSubmissionUrl($form), $payload)->assertUnprocessable()->assertJsonValidationErrors($error);
+    $this->assertDatabaseCount('submissions', 0);
+    $this->assertDatabaseCount('answers', 0);
+    $this->assertDatabaseCount('answer_options', 0);
+})->with(['whitespace', 'foreign option']);

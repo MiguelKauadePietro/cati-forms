@@ -1,0 +1,21 @@
+name: cati-forms
+
+services:
+    db:
+        image: mysql:8.0
+        restart: unless-stopped
+
+        ports:
+            - '127.0.0.1:${MYSQL_PORT:-3308}:3306'
+
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Senha root obrigatoria}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-cati_forms}
+            MYSQL_USER: ${MYSQL_USER:-cati_forms}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Senha do usuario obrigatoria}
+
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+volumes:
+    mysql_data:

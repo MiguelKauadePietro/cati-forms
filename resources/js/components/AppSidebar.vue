@@ -14,9 +14,11 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index } from '@/routes/forms';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
+    { title: 'Todos os formulários', href: index(), icon: LayoutGrid },
     {
         title: 'Dashboard',
         href: dashboard(),
