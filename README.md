@@ -150,7 +150,3 @@ Os testes usam SQLite **em memória**, com proteção contra uso do MySQL real.
 Execute `php artisan config:clear` antes dos testes se houver configuração em
 cache. Opcionalmente, instale `poppler-utils` para os testes de extração de texto
 PDF; sem `pdftotext`, esses casos são marcados como ignorados.
-
-## Documentação técnica
-
-Consulte os [contratos da API REST e instruções do Postman](cati-forms/docs/CATI_Forms_Documentacao.pdf), versionados no repositório.
