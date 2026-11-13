@@ -44,5 +44,6 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 .env.docker
-docs/
 skills-lock.json
+docs/api
+docs/testes
