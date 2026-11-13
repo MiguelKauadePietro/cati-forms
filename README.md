@@ -153,4 +153,4 @@ PDF; sem `pdftotext`, esses casos são marcados como ignorados.
 
 ## Documentação técnica
 
-Consulte os [contratos da API REST e instruções do Postman](docs/cati-forms_documentacao.pdf), versionados no repositório.
+Consulte os [contratos da API REST e instruções do Postman](cati-forms/docs/CATI_Forms_Documentacao.pdf), versionados no repositório.
